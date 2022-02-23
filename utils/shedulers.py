@@ -10,8 +10,7 @@ from utils.mailings import notify_operator_about_delete_user
 
 async def check_access():
     while True:
-        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 22 and datetime.now(pytz.timezone('Europe/Moscow')).minute == 26:
-            print(1)
+        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 13 and datetime.now(pytz.timezone('Europe/Moscow')).minute == 0:
             text = _("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
                      "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
                      "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
@@ -25,7 +24,6 @@ async def check_access():
 
             for items in await db.get_users():
                 if items[1] == datetime.now().date():
-                    print(235)
                     text_del = _("Привет, {name}! Сегодня у вас истек срок подписки на телеграм-канал “Пой со мной”. Мы, "
                              "я вынуждены удалить вас из канала, за то что вы не продлили подписку, таковы правила. В "
                              "любой момент вы можете вернуться к нам. Для этого  нажмите “Хочу подписку” в Меню. Буду "
@@ -41,7 +39,6 @@ async def check_access():
                     await notify_operator_about_delete_user(items[0], items[-1])
 
                 elif items[1] - timedelta(3) == datetime.now().date():
-                    print(2)
                     await db.update_user_parameters(user_id=items[0], parameter_name="status", parameter_value=3)
 
                     rate = await db.get_rates_info(items[0])
@@ -62,7 +59,6 @@ async def check_access():
                                                             price=rate[0]),
                                            reply_markup=markup)
                 elif items[1] - timedelta(2) == datetime.now().date():
-                    print(3)
                     markup = InlineKeyboardMarkup(
                         inline_keyboard=[
                             [InlineKeyboardButton(text=_("Оплатить текущий тариф"), callback_data="pay")],
@@ -81,7 +77,6 @@ async def check_access():
                                                             price=rate[0]),
                                            reply_markup=markup)
                 elif items[1] - timedelta(1) == datetime.now().date():
-                    print(4)
                     markup = InlineKeyboardMarkup(
                         inline_keyboard=[
                             [InlineKeyboardButton(text=_("Оплатить текущий тариф"), callback_data="pay")],

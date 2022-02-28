@@ -78,12 +78,12 @@ class Database:
 
     async def get_rates(self):
         with self.db:
-            self.sql.execute(f"SELECT * FROM rates")
+            self.sql.execute(f"SELECT * FROM rates ORDER BY id ASC")
             return self.sql.fetchall()
 
     async def get_rate_info(self, rate_id):
         with self.db:
-            self.sql.execute(f"SELECT * FROM rates WHERE id={rate_id}")
+            self.sql.execute(f"SELECT * FROM rates WHERE id={rate_id} ORDER BY id ASC")
             return self.sql.fetchone()
 
     async def get_rates_info(self, user_id):
@@ -91,7 +91,7 @@ class Database:
             self.sql.execute(
                 f"SELECT rates.price, rates.term, rates.name, users.rate_id FROM rates INNER JOIN users ON rates.id = "
                 f"users.rate_id "
-                f"WHERE users.user_id = {user_id}")
+                f"WHERE users.user_id = {user_id} ORDER BY rates.id ASC")
             return self.sql.fetchone()
 
     async def get_card_number(self):
@@ -212,9 +212,4 @@ class Database:
             self.sql.execute(f"SELECT subscription_date FROM users WHERE user_id={user_id}")
             return self.sql.fetchone()[0]
 
-# con = psycopg2.connect(dbname=DATABASE, user=USER, password=PASSWORD)
-# db = Database(con)
-# print(db.get_overdue_users())
-# print(db.get_admins(1))
-# print(db.get_song("tets"))
-# db.set_channel_link("https://t.me/tema_pervushin")
+

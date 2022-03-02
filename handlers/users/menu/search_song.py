@@ -21,7 +21,7 @@ async def search_song(call: CallbackQuery):
     else:
         markup = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text=_("По названию"), callback_data="on_name")],
+#                 [InlineKeyboardButton(text=_("По названию"), callback_data="on_name")],
                 [InlineKeyboardButton(text=_("По региону, жанру и(или) уровню сложности"), callback_data="on_other")],
                 [InlineKeyboardButton(text=_("Вернуться в меню"), callback_data="menu")]
             ]

@@ -52,8 +52,12 @@ async def notify_operator(user_id, username, payment_type=0, notify_type=0):
         caption = "Зарегистрирован новый пользователь\n\n"
 
     for operator in operators:
-        await bot.send_photo(operator[0], photo=paymentScreenshot, caption=caption + text,
-                             reply_markup=confirmPaymentBtn)
+        try:
+            await bot.send_photo(operator[0], photo=paymentScreenshot, caption=caption + text,
+                                 reply_markup=confirmPaymentBtn)
+        except:
+            await bot.send_document(operator[0], document=paymentScreenshot, caption=caption + text,
+                                    reply_markup=confirmPaymentBtn)
 
 
 async def notify_operator_about_delete_user(user_id, username, notify_type=0):

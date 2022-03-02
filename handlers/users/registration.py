@@ -4,12 +4,19 @@ from typing import Union
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, \
+    KeyboardButton, BotCommandScopeChat
 
 from keyboards.inline.callback_data import gender_cd, rates_cd, registration_cd
 from loader import dp, _, db, bot
 from states import states
 from utils.mailings import notify_operator
+
+
+@dp.callback_query_handler(text="registration_user")
+async def start_registrate_user(call: CallbackQuery, state: FSMContext):
+    await call.message.edit_reply_markup()
+    await ask_name(call.message, state)
 
 
 @dp.message_handler(text=["Регистрация", "Registration"])
@@ -51,8 +58,7 @@ async def ask_instagram(message: types.Message, state: FSMContext, callback_data
     if status:
         return await confirm_registration(message, state)
 
-    await message.answer(_("Укажите свой аккаунт в Instagram (если нет, то любую другую соц. сеть ,указывать без "
-                           "символа @)"))
+    await message.answer(_("Укажите свой аккаунт в Instagram, без символа @ (если нет, то любую другую соц. сеть)"))
     await states.User.instagram.set()
 
 
@@ -145,6 +151,7 @@ async def ask_rates(message: types.Message, state: FSMContext, callback_data: di
         return await confirm_registration(message, state)
 
     rates = await db.get_rates()
+    print(rates)
 
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -306,7 +313,8 @@ async def add_user_parameters(call: CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(text="agreement")
-async def get_parameters_for_payment(call: CallbackQuery, state: FSMContext, isExtension=False, rate_id=False, want_sub=False):
+async def get_parameters_for_payment(call: CallbackQuery, state: FSMContext, isExtension=False, rate_id=False,
+                                     want_sub=False):
     async with state.proxy() as data:
         data["isExtension"] = isExtension
         data["rate_id"] = rate_id
@@ -323,21 +331,33 @@ async def get_parameters_for_payment(call: CallbackQuery, state: FSMContext, isE
     await call.message.edit_text(_("Переведите оплату в соответствии с вашим тарифом {price}р. на карту Сбербанка: "
                                    "<code>{card_number}</code>\n"
                                    "Получатель: Елизавета Владимировна А.\n"
-                                   "После совершения перевода, отправьте мне скриншот банковской операции").format(
+                                   "После совершения перевода, отправьте сюда скриншот банковской операции\n"
+                                   "В ответ вы получите ссылку на телеграм-канал.\n\n"
+                                   "❓Если вы не получили сообщение в ответ на отправленный скриншот, напишите нам, "
+                                   "мы поможем @lisaveta_support").format(
         price=price, card_number=card_number),
         parse_mode="HTML")
 
     await states.PaymentPhoto.photo.set()
 
 
+@dp.message_handler(content_types=types.ContentType.DOCUMENT, state=states.PaymentPhoto.photo)
+async def handle_documents(message: types.Message, state: FSMContext):
+    payment_screenshot = message.document.file_id
+    await finish_registration(message, state, screen=payment_screenshot)
+
+
 @dp.message_handler(content_types=types.ContentType.PHOTO, state=states.PaymentPhoto.photo)
-async def finish_registration(message: types.Message, state: FSMContext):
+async def finish_registration(message: types.Message, state: FSMContext, screen=False):
     async with state.proxy() as data:
         isExtension = data["isExtension"]
         rate_id = data["rate_id"]
         want_sub = data['want_sub']
 
-    payment_screenshot = message.photo[-1].file_id
+    if screen:
+        payment_screenshot = screen
+    else:
+        payment_screenshot = message.photo[-1].file_id
     user_id = message.chat.id
     username = message.chat.username
 
@@ -379,11 +399,21 @@ async def finish_registration(message: types.Message, state: FSMContext):
               "Вот ваша персональная ссылка на для входа в телеграм-канал: {link}\n"
               "Внимание! Ссылкой можно воспользоваться только один раз, если ссылка будет передана третьему лицу, "
               "то вы сами в канал войти не сможете, а так же будете добавлены в черный список.\n\n"
-
-              "У бота есть полезные функции. Например “Поиск песен”. С помощью этой функции вы сможете найти песню по "
+              "Для эффективной работы с телеграм-каналом, рекомендуем ознакомиться с методикой освоения материала "
+              "https://t.me/c/1614950824/23\n\n"
+              "Вы можете вступить в чат канала https://t.me/+mVL7vOP__pdlMmQ6 чтобы найти тех, с кем можно петь в "
+              "вашем городе или обсудить материалы канала с участниками.\n\n"
+              "У этого  бота есть полезные функции. Например “Поиск песен”. С помощью этой функции вы сможете найти песню по "
               "названию, региону, жанру или уровню сложности.\n"
               "Подробнее о боте вы можете узнать в разделе “Что умеет бот?” (находится в Меню)\n"
               "Приятного прослушивания!").format(link=channel_link), reply_markup=markup)
+
+        await bot.set_my_commands(
+            [
+                types.BotCommand("menu", "Отобразить меню"),
+            ], scope=BotCommandScopeChat(message.chat.id)
+        )
+
     else:
         if rate_id:
             notify_type = 2

@@ -3,13 +3,16 @@ from datetime import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ReplyKeyboardMarkup, \
+    KeyboardButton, BotCommandScopeChat
 
-from loader import dp, db, _, tz
+from loader import dp, db, _, tz, bot
 
 
 @dp.message_handler(CommandStart())
 async def start_dialog(message: types.Message, state: FSMContext):
+    await bot.delete_my_commands(scope=BotCommandScopeChat(message.chat.id))
+
     admins = await db.get_admins(message.chat.id)
 
     if admins:
@@ -21,19 +24,7 @@ async def start_dialog(message: types.Message, state: FSMContext):
         )
 
         return await message.answer(f"Добро пожаловать в панель администратора\n"
-                             f"Дата и время сервера: {datetime.now(tz)}", reply_markup=markup)
-    else:
-        user_status = await db.check_user(message.chat.id)
-        user = await db.get_user(message.chat.id)
-        if user and user_status != 13:
-            markup = ReplyKeyboardMarkup(
-                keyboard=[
-                    [KeyboardButton(text=_('Меню'))]
-                ],
-                resize_keyboard=True
-            )
-
-            return await message.answer(_("Вы уже зарегистрированы\nВоспользуйтесь меню"), reply_markup=markup)
+                                    f"Дата и время сервера: {datetime.now(tz)}", reply_markup=markup)
 
     if message.chat.username is None:
         markup = InlineKeyboardMarkup(
@@ -67,6 +58,7 @@ async def get_instruction_apple(call: CallbackQuery, state: FSMContext):
     }
 
     images = await db.get_config_value("apple")
+
     for photo in images:
         temp += 1
         await call.message.answer_photo(photo=photo, caption=instruction_text[temp])
@@ -142,22 +134,31 @@ async def get_instruction(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(text=["Начать", "To begin"])
 async def registrate_user(message: types.Message, state: FSMContext):
     if message.chat.username is None:
-        await message.answer(_("Вы не указали username!"))
+        await message.answer(_("Вы не указали username. \nЕсли у вас возникли трудности, напишите нам, мы поможем "
+                               "@lisaveta_suppor"))
         return
 
     user_id = message.chat.id
     username = message.chat.username
     status = 13
 
-    await db.register_new_user(user_id=user_id, username=username, status=status)
+    try:
+        await db.register_new_user(user_id=user_id, username=username, status=status)
+    except:
+        return await message.answer(_("Произошла ошибка, попробуйте заново, нажав /start"))
 
-    markup = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text=_('Регистрация'))]
-        ],
-        resize_keyboard=True
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(_('Регистрация'), callback_data="registration_user")]
+        ]
     )
 
     await message.answer(
-        _("Привет! Спасибо за интерес к телеграм-каналу 'Пой со мной'. Нажимайте на кнопку регистрация и начнем."),
+        _("👋 Привет! Спасибо за интерес к телеграм-каналу “Пой со мной”.\n"
+          "❓ Если у вас появятся вопросы в процессе регистрации - напишите нам, мы поможем @lisaveta_support\n\n"
+          "⬇️ Нажимайте на кнопку “Регистрация” и начнем"),
         reply_markup=markup)
+
+
+
+

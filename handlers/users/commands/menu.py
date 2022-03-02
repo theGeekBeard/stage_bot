@@ -23,14 +23,18 @@ async def show_menu_cmd(message: types.Message, state: FSMContext):
     user = await db.get_user(message.chat.id)
 
     if user:
-        markup = ReplyKeyboardMarkup(
-            keyboard=[
-                [KeyboardButton(text=_('Меню'))]
-            ],
-            resize_keyboard=True
+        markup = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text=_("Поиск песен"), callback_data="search_songs")],
+                [InlineKeyboardButton(text=_("Предложить песню"), callback_data="suggest_song")],
+                [InlineKeyboardButton(text=_("Хочу расшифровку песни"), callback_data="song_decoding")],
+                [InlineKeyboardButton(text=_("Задать вопрос"), callback_data="ask_question")],
+                [InlineKeyboardButton(text=_("Хочу подписку"), callback_data="want_subscription")],
+                [InlineKeyboardButton(text=_("Что умеет бот?"), callback_data="can_bot")]
+            ]
         )
 
-        await message.answer(_("Меню:"), reply_markup=markup)
+        await message.answer(_("Выберите:"), reply_markup=markup)
     else:
         await message.answer("Зарегистрируйтесь, чтобы использовать эту функцию\n"
                              "Register to use this feature")

@@ -9,6 +9,7 @@ from loader import dp
 
 @dp.message_handler(text="Действия", state="*")
 async def get_admin_menu(message: types.Message, state: FSMContext):
+    print(2)
     await state.finish()
 
     markup = InlineKeyboardMarkup(

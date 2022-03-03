@@ -135,7 +135,7 @@ async def get_instruction(call: CallbackQuery, state: FSMContext):
 async def registrate_user(message: types.Message, state: FSMContext):
     if message.chat.username is None:
         await message.answer(_("Вы не указали username. \nЕсли у вас возникли трудности, напишите нам, мы поможем "
-                               "@lisaveta_suppor"))
+                               "@lisaveta_support"))
         return
 
     user_id = message.chat.id

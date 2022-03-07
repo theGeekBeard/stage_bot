@@ -4,6 +4,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 
+import pytz
+
 from loader import dp
 
 
@@ -33,7 +35,7 @@ async def get_statistic_menu(call: CallbackQuery):
             [InlineKeyboardButton("Статистика канала", callback_data="channel_statistic")]
         ])
 
-    await call.message.edit_text(f"Время сервера: {datetime.now()}", reply_markup=markup)
+    await call.message.edit_text(f"Время сервера: {datetime.now(pytz.timezone('Europe/Moscow'))}", reply_markup=markup)
 
 
 @dp.callback_query_handler(text="song_main")
@@ -47,7 +49,7 @@ async def song_menu(call: CallbackQuery):
             [InlineKeyboardButton("Добавить жанр", callback_data="add_genre")]
         ])
 
-    await call.message.edit_text(f"Время сервера: {datetime.now()}", reply_markup=markup)
+    await call.message.edit_text(f"Время сервера: {datetime.now(pytz.timezone('Europe/Moscow'))}", reply_markup=markup)
 
 
 @dp.callback_query_handler(text="data_main")
@@ -59,7 +61,7 @@ async def get_data(call: CallbackQuery):
             [InlineKeyboardButton("Изменить ссылку на канал", callback_data="change_link")]
         ])
 
-    await call.message.edit_text(f"Время сервера: {datetime.now()}", reply_markup=markup)
+    await call.message.edit_text(f"Время сервера: {datetime.now(pytz.timezone('Europe/Moscow'))}", reply_markup=markup)
 
 
 @dp.callback_query_handler(text="users_main")
@@ -79,4 +81,4 @@ async def get_users_menu(call: CallbackQuery):
             [InlineKeyboardButton("Сколько получили ссылку?", callback_data="how_much_have_link")]
         ])
 
-    await call.message.edit_text(f"Время сервера: {datetime.now()}", reply_markup=markup)
+    await call.message.edit_text(f"Время сервера: {datetime.now(pytz.timezone('Europe/Moscow'))}", reply_markup=markup)

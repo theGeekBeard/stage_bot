@@ -97,3 +97,11 @@ class RegionGenre(StatesGroup):
 class Operator(StatesGroup):
     username = State()
     user_id = State()
+
+
+class Date(StatesGroup):
+    date = State()
+    date2 = State()
+    first_date = State()
+    second_date = State()
+

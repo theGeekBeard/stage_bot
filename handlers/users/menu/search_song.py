@@ -19,11 +19,23 @@ async def search_song(call: CallbackQuery):
         await call.message.edit_text(
             _("К сожалению, вы больше не можете пользоваться функциями бота."), reply_markup=None)
     else:
+        # markup = InlineKeyboardMarkup(
+        #     inline_keyboard=[
+        #         # [InlineKeyboardButton(text=_("По названию"), callback_data="on_name")],
+        #         [InlineKeyboardButton(text=_("По региону, жанру и(или) уровню сложности"), callback_data="on_other")],
+        #         [InlineKeyboardButton(text=_("Вернуться в меню"), callback_data="menu")]
+        #     ]
+        # )
+
         markup = InlineKeyboardMarkup(
             inline_keyboard=[
-                # [InlineKeyboardButton(text=_("По названию"), callback_data="on_name")],
-                [InlineKeyboardButton(text=_("По региону, жанру и(или) уровню сложности"), callback_data="on_other")],
-                [InlineKeyboardButton(text=_("Вернуться в меню"), callback_data="menu")]
+                [InlineKeyboardButton(text=_("По региону"), callback_data=search_song_cd.new(call="0", value="",
+                                                                                             criteria="1"))],
+                [InlineKeyboardButton(text=_("По жанру"), callback_data=search_song_cd.new(call="0", value="",
+                                                                                           criteria="2"))],
+                [InlineKeyboardButton(text=_("По уровню сложности"),
+                                      callback_data=search_song_cd.new(call="0", value="",
+                                                                       criteria="3"))]
             ]
         )
 
@@ -271,6 +283,7 @@ async def search_song_(call: CallbackQuery, request, state: FSMContext):
             3: _("высокий")
         }
         await call.message.edit_reply_markup()
+        await call.message.answer(_("↓Результаты поиска↓"))
         for song in found_songs:
             text = f"_____________________\n" \
                    f"{song[0]}, {song[1]}, {song[2]}, {song[3]}, {song[4]}, ноты - {notes[song[5]]}, " \

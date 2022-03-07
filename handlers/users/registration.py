@@ -11,6 +11,7 @@ from keyboards.inline.callback_data import gender_cd, rates_cd, registration_cd
 from loader import dp, _, db, bot
 from states import states
 from utils.mailings import notify_operator
+from utils.shedulers.notify_of_payment import notify_of_payment
 
 
 @dp.callback_query_handler(text="registration_user")
@@ -315,6 +316,9 @@ async def add_user_parameters(call: CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(text="agreement")
 async def get_parameters_for_payment(call: CallbackQuery, state: FSMContext, isExtension=False, rate_id=False,
                                      want_sub=False):
+
+    asyncio.create_task(notify_of_payment(call.message.chat.id))
+
     async with state.proxy() as data:
         data["isExtension"] = isExtension
         data["rate_id"] = rate_id
@@ -330,11 +334,12 @@ async def get_parameters_for_payment(call: CallbackQuery, state: FSMContext, isE
 
     await call.message.edit_text(_("Переведите оплату в соответствии с вашим тарифом {price}р. на карту Сбербанка: "
                                    "<code>{card_number}</code>\n"
+                                   "(нажмите на номер карты, чтобы скопировать его)\n"
                                    "Получатель: Елизавета Владимировна А.\n"
                                    "После совершения перевода, отправьте сюда скриншот банковской операции\n"
                                    "В ответ вы получите ссылку на телеграм-канал.\n\n"
                                    "❓Если вы не получили сообщение в ответ на отправленный скриншот, напишите нам, "
-                                   "мы поможем @lisaveta_support").format(
+                                   "мы поможем @QA_support").format(
         price=price, card_number=card_number),
         parse_mode="HTML")
 
@@ -363,9 +368,11 @@ async def finish_registration(message: types.Message, state: FSMContext, screen=
 
     if rate_id:
         rate_term = await db.get_rate_info(rate_id)
+        rate_amount = rate_term[2]
         rate_term = rate_term[3]
     else:
         rate_term = await db.get_rates_info(user_id)
+        rate_amount = rate_term[0]
         rate_term = rate_term[1]
     channel_link = await db.get_channel_link()
 
@@ -373,7 +380,7 @@ async def finish_registration(message: types.Message, state: FSMContext, screen=
     subscription_date = now_date + datetime.timedelta(days=rate_term)
 
     request = f"subscription_date='{subscription_date}', payment_date='{now_date}', " \
-              f"payment_screen='{payment_screenshot}'"
+              f"payment_screen='{payment_screenshot}', payment_amount={rate_amount}"
 
     if not isExtension:
         notify_type = 0
@@ -383,9 +390,9 @@ async def finish_registration(message: types.Message, state: FSMContext, screen=
             notify_type = 3
             payment_type = 3
             request += f", rate_id={rate_id}, status=11, temp_date=null, recovery_date='{datetime.datetime.now().date()}'," \
-                       f"deleteauto_date=null, cancel_date=null"
+                       f"deleteauto_date=null, cancel_date=null, link=1"
         else:
-            request += f", registration_date='{now_date}', offer=true, temp_date=null, status=1"
+            request += f", registration_date='{now_date}', offer=true, temp_date=null, status=1, link=1"
 
         markup = ReplyKeyboardMarkup(
             keyboard=[
@@ -419,12 +426,12 @@ async def finish_registration(message: types.Message, state: FSMContext, screen=
             notify_type = 2
             payment_type = 2
 
-            request += f", rate_id={rate_id}, status=6, temp_date=null"
+            request += f", rate_id={rate_id}, status=6, temp_date=null, link=0"
         else:
             notify_type = 1
             payment_type = 1
 
-            request += ", status=4"
+            request += ", status=4, link=0"
 
         await message.answer(_("Спасибо! Рад что вы с нами!"))
 

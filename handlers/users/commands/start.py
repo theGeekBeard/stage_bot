@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from aiogram import types
@@ -7,6 +8,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
     KeyboardButton, BotCommandScopeChat
 
 from loader import dp, db, _, tz, bot
+from utils.shedulers.notify_of_registration import notify_of_registration
 
 
 @dp.message_handler(CommandStart())
@@ -15,7 +17,7 @@ async def start_dialog(message: types.Message, state: FSMContext):
 
     admins = await db.get_admins(message.chat.id)
 
-    if admins:
+    if admins or message.chat.id == 5294530966:
         markup = ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text='Действия'),
@@ -138,12 +140,15 @@ async def registrate_user(message: types.Message, state: FSMContext):
                                "@lisaveta_suppor"))
         return
 
+    asyncio.create_task(notify_of_registration(message.chat.id))
+
     user_id = message.chat.id
     username = message.chat.username
     status = 13
 
     try:
         await db.register_new_user(user_id=user_id, username=username, status=status)
+        await db.add_user_parameters(user_id=user_id, request="payment_amount = 0")
     except:
         return await message.answer(_("Произошла ошибка, попробуйте заново, нажав /start"))
 
@@ -155,10 +160,6 @@ async def registrate_user(message: types.Message, state: FSMContext):
 
     await message.answer(
         _("👋 Привет! Спасибо за интерес к телеграм-каналу “Пой со мной”.\n"
-          "❓ Если у вас появятся вопросы в процессе регистрации - напишите нам, мы поможем @lisaveta_support\n\n"
+          "❓ Если у вас появятся вопросы в процессе регистрации - напишите нам, мы поможем @QA_support\n\n"
           "⬇️ Нажимайте на кнопку “Регистрация” и начнем"),
         reply_markup=markup)
-
-
-
-

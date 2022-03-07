@@ -6,7 +6,7 @@ import middlewares, handlers, filters
 
 from loader import dp, bot
 from utils.notify_admins import on_startup_notify
-from utils.shedulers import check_access
+from utils.shedulers.check_subscribe import check_access
 
 
 async def on_startup(dispatcher):

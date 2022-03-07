@@ -10,7 +10,9 @@ from utils.mailings import notify_operator_about_delete_user
 
 async def check_access():
     while True:
-        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 22 and datetime.now(pytz.timezone('Europe/Moscow')).minute == 26:
+
+        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 13 and datetime.now(
+                pytz.timezone('Europe/Moscow')).minute == 0:
             print(1)
             text = _("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
                      "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
@@ -24,12 +26,15 @@ async def check_access():
             }
 
             for items in await db.get_users():
+                print(items[1])
                 if items[1] == datetime.now().date():
                     print(235)
-                    text_del = _("Привет, {name}! Сегодня у вас истек срок подписки на телеграм-канал “Пой со мной”. Мы, "
-                             "я вынуждены удалить вас из канала, за то что вы не продлили подписку, таковы правила. В "
-                             "любой момент вы можете вернуться к нам. Для этого  нажмите “Хочу подписку” в Меню. Буду "
-                             "ждать вас!").format(name=items[2])
+                    text_del = _("Привет, {name}! Сегодня у вас истек срок подписки на телеграм-канал “Пой со мной”. "
+                                 "Мы, вынуждены удалить вас из канала, за то что вы не продлили подписку, "
+                                 "таковы правила.\nВам всегда доступна бесплатная версия канала\n"
+                                 "https://t.me/Sing_with_me_folk\nВ любой момент вы можете оформить подписку на платную "
+                                 "версию. Для этого нажмите “Хочу подписку” в Меню бота. Буду ждать вас!").format(
+                        name=items[2])
 
                     request = f"status=7, deleteauto_date='{datetime.now().date()}', " \
                               f"recovery_date=null, rate_id=null, subscription_date=null"
@@ -56,10 +61,11 @@ async def check_access():
 
                     await bot.send_message(items[0],
                                            text=_("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
-                     "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
-                     "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
-                     "подписки.").format(name=items[2], day="3 дня", rate_name=rate_name[rate[-1]],
-                                                            price=rate[0]),
+                                                  "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
+                                                  "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
+                                                  "подписки.").format(name=items[2], day="3 дня",
+                                                                      rate_name=rate_name[rate[-1]],
+                                                                      price=rate[0]),
                                            reply_markup=markup)
                 elif items[1] - timedelta(2) == datetime.now().date():
                     print(3)
@@ -75,10 +81,11 @@ async def check_access():
 
                     await bot.send_message(items[0],
                                            text=_("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
-                     "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
-                     "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
-                     "подписки.").format(name=items[2], day="2 дня", rate_name=rate_name[rate[-1]],
-                                                            price=rate[0]),
+                                                  "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
+                                                  "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
+                                                  "подписки.").format(name=items[2], day="2 дня",
+                                                                      rate_name=rate_name[rate[-1]],
+                                                                      price=rate[0]),
                                            reply_markup=markup)
                 elif items[1] - timedelta(1) == datetime.now().date():
                     print(4)
@@ -94,14 +101,15 @@ async def check_access():
 
                     await bot.send_message(items[0],
                                            text=_("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
-                     "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
-                     "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
-                     "подписки.").format(name=items[2], day="1 день", rate_name=rate_name[rate[-1]],
-                                                            price=rate[0]),
+                                                  "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "
+                                                  "подписка с тарифом: {rate_name} ({price}р.). Кстати, сейчас вы можете сменить тариф "
+                                                  "подписки.").format(name=items[2], day="1 день",
+                                                                      rate_name=rate_name[rate[-1]],
+                                                                      price=rate[0]),
                                            reply_markup=markup)
-                else:
-                    await asyncio.sleep(60)
             else:
+                print("sex")
                 await asyncio.sleep(60)
         else:
+            print(2432432)
             await asyncio.sleep(60)

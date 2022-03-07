@@ -67,7 +67,6 @@ class Database:
 
     # достаем пользователя из базы данных
     async def get_user(self, user_id):
-
         self.sql.execute(f"SELECT * FROM users WHERE user_id={user_id}")
         return self.sql.fetchone()
 
@@ -143,7 +142,7 @@ class Database:
 
     async def get_regions(self):
         with self.db:
-            self.sql.execute("SELECT * FROM regions")
+            self.sql.execute("SELECT * FROM regions ORDER BY name")
             return self.sql.fetchall()
 
     async def get_genres(self):
@@ -212,4 +211,14 @@ class Database:
             self.sql.execute(f"SELECT subscription_date FROM users WHERE user_id={user_id}")
             return self.sql.fetchone()[0]
 
+    async def get_payment_amount(self, date1, date2):
+        self.sql.execute(f"SELECT COUNT(payment_amount), SUM(payment_amount) FROM users WHERE "
+                         f"to_char(payment_date,'yyyy-mm-dd') "
+                         f"BETWEEN '{date1}' AND '{date2}'")
+        return self.sql.fetchone()
 
+    async def get_count_user_with_link(self, date1, date2):
+        self.sql.execute(f"SELECT COUNT(user_id) FROM users WHERE link=1 AND (status = 1 OR status = 2 "
+                         f"OR status = 3 OR status = 5 OR status = 11) AND to_char(payment_date,'yyyy-mm-dd') "
+                         f"BETWEEN '{date1}' AND '{date2}'")
+        return self.sql.fetchone()

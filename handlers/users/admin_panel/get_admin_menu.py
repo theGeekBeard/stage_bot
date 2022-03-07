@@ -75,7 +75,8 @@ async def get_users_menu(call: CallbackQuery):
             [InlineKeyboardButton("ЗаБАНить пользователя", callback_data="ban_user")],
             [InlineKeyboardButton("Просроченные подписки", callback_data="overdue_users")],
             [InlineKeyboardButton("Поиск лишних пользователей на канале", callback_data="search_non_users")],
-            [InlineKeyboardButton("Добавить оператора", callback_data="add_operator")]
+            [InlineKeyboardButton("Сколько оплатили?", callback_data="how_much_pay")],
+            [InlineKeyboardButton("Сколько получили ссылку?", callback_data="how_much_have_link")]
         ])
 
     await call.message.edit_text(f"Время сервера: {datetime.now()}", reply_markup=markup)

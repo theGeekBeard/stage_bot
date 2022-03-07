@@ -26,7 +26,7 @@ async def show_tariffs_info(call: CallbackQuery):
 
     text = _("1 месяц - ({price}р.)\n"
              "6 месяцев - ({price2}р.)\n"
-             "12 месяцев - ({price3}р.))").format(price=rates[0][2], price2=rates[1][2], price3=rates[2][2])
+             "12 месяцев - ({price3}р.)").format(price=rates[0][2], price2=rates[1][2], price3=rates[2][2])
 
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -136,8 +136,10 @@ async def cancel_subscription(call: CallbackQuery):
 
 @dp.callback_query_handler(text="no_write")
 async def bye_user(call: CallbackQuery):
-    await call.message.edit_text(_("Спасибо, что были с нами! В любой момент вы можете вернуться к нам. Для этого "
-                                   "нажмите 'Хочу подписку' в Меню. Буду ждать вас!"), reply_markup=None)
+    await call.message.edit_text(_("Спасибо, что были с нами!\nВам всегда доступна бесплатная версия канала\n"
+                                   "https://t.me/Sing_with_me_folk\nВ любой момент вы можете оформить подписку на "
+                                   "платную версию.\nДля этого нажмите “Хочу подписку” в Меню бота. Буду ждать вас!"),
+                                 reply_markup=None)
 
 
 @dp.callback_query_handler(text="write")
@@ -153,8 +155,9 @@ async def call_bye_user(message: types.Message):
     request = f"reason_cancel='{reason}'"
     await db.add_user_parameters(message.chat.id, request)
 
-    await message.answer(_("Спасибо, что были с нами! В любой момент вы можете вернуться к нам. Для этого нажмите "
-                           "“Хочу подписку” в Меню. Буду ждать вас!"))
+    await message.answer(_("Спасибо, что были с нами!\nВам всегда доступна бесплатная версия канала\n"
+                           "https://t.me/Sing_with_me_folk\nВ любой момент вы можете оформить подписку на "
+                           "платную версию.\nДля этого нажмите “Хочу подписку” в Меню бота. Буду ждать вас!"))
 
     await notify_operator_about_reason(username=message.chat.username, reason=reason)
 

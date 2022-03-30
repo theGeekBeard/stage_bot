@@ -15,7 +15,7 @@ async def notify_operator(user_id, username, payment_type=0, notify_type=0):
     inst = userInfo[8]
     city = userInfo[11]
     registrationDate = userInfo[13]
-    paymentScreenshot = userInfo[-1]
+    paymentScreenshot = userInfo[-3]
 
     text = f"Tg: @{username}\n" \
            f"Имя: {name}\n" \

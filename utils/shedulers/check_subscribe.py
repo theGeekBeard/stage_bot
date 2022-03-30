@@ -11,8 +11,8 @@ from utils.mailings import notify_operator_about_delete_user
 async def check_access():
     while True:
 
-        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 19 and datetime.now(
-                pytz.timezone('Europe/Moscow')).minute == 25:
+        if datetime.now(pytz.timezone('Europe/Moscow')).hour == 13 and datetime.now(
+                pytz.timezone('Europe/Moscow')).minute == 0:
             print(1)
             text = _("Привет, {name}! Сообщаю, что пора продлить вашу подписку на "
                      "телеграм-канал 'Пой со мной'. До окончания подписки осталось всего {day}. Сейчас у вас "

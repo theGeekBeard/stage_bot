@@ -26,6 +26,7 @@ async def check_access():
             }
 
             for items in await db.get_users():
+                print(items)
                 if items[1] == datetime.now().date():
                     print(235)
                     try:
